@@ -2,13 +2,13 @@ import java.util.Random;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
-public class game2048{
-	public static void main(String [] arges){
-		GUI window=new GUI();
-		window.running();
-	}
+public class game2048 {
+    public static void main(String[] args){
+    	new GUI();
+    }
 }
-class GUI extends JFrame implements KeyListener{
+
+class GUI extends JFrame{
 	/**
 	 * 
 	 */
@@ -20,50 +20,53 @@ class GUI extends JFrame implements KeyListener{
 		dialog=new JDialog(this,false);
 		message=new JLabel();
 		button=new JButton("exit");	
-		lab=new JButton[4][4];
+		lab=new JButton[5][4];
 		Container container=getContentPane();
-		container.setLayout(new GridLayout(4,4));
-		for(int t1=0;t1<4;t1++)
+		container.setLayout(new GridLayout(5,4));
+		for(int t1=0;t1<5;t1++)
 			for(int t2=0;t2<4;t2++){
 				lab[t1][t2]=new JButton();
 				container.add(lab[t1][t2]);
 			}
+		setButton();
 		Container dia=dialog.getContentPane();
 		dia.setLayout(new BorderLayout());
 		dia.add(message,BorderLayout.CENTER);
 		dia.add(button,BorderLayout.SOUTH);
+		running();
 	}
-	public void keyTyped(KeyEvent k){
-		System.out.println(k.getKeyChar());
-		action(k.getKeyChar());
-	}
-	public void keyPressed(KeyEvent k){}
-	public void keyReleased(KeyEvent k){}
 	public void shows(){							//show the window;
 		
 		event.start();
 		setText(lab);
 	}
+	public void setButton(){
+		for(int t1=0;t1<4;t1++){
+			if(t1==0) lab[4][t1].setText("Left");
+			else if(t1==1) lab[4][t1].setText("Up");
+			else if(t1==2) lab[4][t1].setText("Down");
+			else lab[4][t1].setText("Right");
+		}
+	}
 	public void running(){						//run the game;
 		shows();
 		setVisible(true);
-		addKeyListener(this);
-		lab[0][1].addActionListener(new ActionListener(){
+		lab[4][1].addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent act){
 				action('w');
 				}
 			});
-		lab[1][0].addActionListener(new ActionListener(){
+		lab[4][0].addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent act){
 				action('a');
 				}
 			});
-		lab[1][2].addActionListener(new ActionListener(){
+		lab[4][3].addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent act){
 				action('d');
 				}
 			});
-		lab[2][1].addActionListener(new ActionListener(){
+		lab[4][2].addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent act){
 				action('s');
 				}
@@ -82,18 +85,23 @@ class GUI extends JFrame implements KeyListener{
 				else label[t1][t2].setBackground(Color.black);
 			}
 	}
-	public void action(char act){						//deal with the action;
-		switch(act){
-		case 'w':
+	public void action(char act){							//deal with the action;
+		int x=0;
+		if(act=='w'||act=='W') x=0;
+		if(act=='a'||act=='A') x=2;
+		if(act=='s'||act=='S') x=1;
+		if(act=='d'||act=='D') x=3;
+		switch(x){
+		case 0:
 			if(event.check_Longitudinal()) event.up();
 			break;
-		case 's':
+		case 1:
 			if(event.check_Longitudinal()) event.down();
 			break;
-		case 'a':
+		case 2:
 			if(event.check_Lateral()) event.left();
 			break;
-		case 'd':
+		case 3:
 			if(event.check_Lateral()) event.right();
 			break;
 		default:
