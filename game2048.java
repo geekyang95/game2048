@@ -1,4 +1,3 @@
-package game2048;
 import java.util.Random;
 import java.awt.*;
 import javax.swing.*;
@@ -6,70 +5,76 @@ import java.awt.event.*;
 public class game2048{
 	public static void main(String [] arges){
 		GUI window=new GUI();
-		window.show();
+		window.running();
 	}
 }
-class keyAction implements KeyListener{
-	public void keyPressed(KeyEvent k){
-		key1=k.getKeyChar();
-		if(key1=='w') window.action(key1);
-	}
-	public void keyTyped(KeyEvent k){
-		key1=k.getKeyChar();
-	}
-	public void keyReleased(KeyEvent k){
-		key1=k.getKeyChar();
-	}
-	public 
-	private char key1;
-	private GUI window;
-}
-class GUI{
+class GUI extends JFrame implements KeyListener{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	public GUI(){								//constructor;
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(400, 200, 450, 300);
 		event=new Event();
-		frame=new JFrame("2048");
-		dialog=new JDialog(frame,false);
+		dialog=new JDialog(this,false);
 		message=new JLabel();
 		button=new JButton("exit");	
 		lab=new JButton[4][4];
-		keyInput=new keyAction();
-		Container container=frame.getContentPane();
+		Container container=getContentPane();
 		container.setLayout(new GridLayout(4,4));
 		for(int t1=0;t1<4;t1++)
 			for(int t2=0;t2<4;t2++){
-				lab[t1][t2]=new JButton(" ");
+				lab[t1][t2]=new JButton();
 				container.add(lab[t1][t2]);
 			}
-		frame.addKeyListener(keyInput);
 		Container dia=dialog.getContentPane();
 		dia.setLayout(new BorderLayout());
 		dia.add(message,BorderLayout.CENTER);
 		dia.add(button,BorderLayout.SOUTH);
 	}
-	public void show(){							//show the window;
-		frame.setSize(400,400);
+	public void keyTyped(KeyEvent k){
+		System.out.println(k.getKeyChar());
+		action(k.getKeyChar());
+	}
+	public void keyPressed(KeyEvent k){}
+	public void keyReleased(KeyEvent k){}
+	public void shows(){							//show the window;
+		
 		event.start();
 		setText(lab);
-		frame.setVisible(true);
-		
 	}
-	public void over(){
-		if(check(message,lab)==true){
-			dialog.setSize(200, 100);
-			dialog.setVisible(true);
-			button.addActionListener(new ActionListener(){
-				public void actionPerformed(ActionEvent e){
-					System.exit(0);
+	public void running(){						//run the game;
+		shows();
+		setVisible(true);
+		addKeyListener(this);
+		lab[0][1].addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent act){
+				action('w');
 				}
 			});
-		} 
+		lab[1][0].addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent act){
+				action('a');
+				}
+			});
+		lab[1][2].addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent act){
+				action('d');
+				}
+			});
+		lab[2][1].addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent act){
+				action('s');
+				}
+			});
 	}
 	public void setText(JButton [][] label){				//set the text of label;
 		for(int t1=0;t1<4;t1++)
 			for(int t2=0;t2<4;t2++){
-				if(event.getValue(t1, t2)==0) label[t1][t2].setText(" ");
+				if(event.getValue(t1, t2)==0) label[t1][t2].setText(null);
 				else label[t1][t2].setText(Integer.toString(event.getValue(t1, t2)));
-				if(label[t1][t2].getText()==" ") label[t1][t2].setBackground(Color.white);
+				if(label[t1][t2].getText()==null) label[t1][t2].setBackground(Color.white);
 				else if(event.getValue(t1,t2)<=4) label[t1][t2].setBackground(Color.lightGray);
 				else if(event.getValue(t1,t2)<=16) label[t1][t2].setBackground(Color.orange);
 				else if(event.getValue(t1,t2)<=64) label[t1][t2].setBackground(Color.red);
@@ -95,6 +100,17 @@ class GUI{
 			;
 			break;
 		}
+		setText(lab);
+		setVisible(true);
+		if(check(message,lab)==true){
+			dialog.setSize(500,500);
+			dialog.setVisible(true);
+			button.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent act){
+					System.exit(0);
+					}
+				});
+		}
 	}
 	public boolean check(JLabel message,JButton [][] label){			//game check;
 			if((event.check_Lateral()==false)&&(event.check_Longitudinal()==false)){
@@ -109,10 +125,8 @@ class GUI{
 			}
 			return false;
 	}
-	private keyAction keyInput;
 	private Event event;
 	private JButton button;
-	private JFrame frame;
 	private JButton [][] lab;
 	private JDialog dialog;
 	private JLabel message;
@@ -319,9 +333,6 @@ class Event{							//create a type to deal with the action of user;
 	public int getValue(int x,int y){			//get the value of position(x,y);
 		return ex.getValue(x, y);
 	}
-	public int getTestNumber(){			
-		return ra.test();
-	}
 	private int lat,lon,third,posEmpty;
 	private init ex;
 	private rand ra;
@@ -329,7 +340,7 @@ class Event{							//create a type to deal with the action of user;
 }
 class rand{								//type to get random number;
 	public rand(){						//constructor;
-		random=new int[3];
+		random=new int[2];
 		number=new Random();
 	}
 	public void next(int amount){				//get next random number;
@@ -344,10 +355,6 @@ class rand{								//type to get random number;
 	public int getValue(){					//get a random value;
 		return random[1];
 	}
-	public int test(){
-		random[2]=number.nextInt(4);
-		return random[2];
-	}
-	public int [] random;
+	private int [] random;
 	private Random number;
 }
