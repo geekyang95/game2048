@@ -1,14 +1,17 @@
+package game2048;
 import java.util.Random;
 import java.awt.*;
+
 import javax.swing.*;
+
 import java.awt.event.*;
 public class game2048 {
     public static void main(String[] args){
-    	new GUI();
+    		GUI window=new GUI();
+    		window.add(window);
     }
 }
-
-class GUI extends JFrame{
+class GUI extends JFrame implements KeyListener{
 	/**
 	 * 
 	 */
@@ -16,10 +19,10 @@ class GUI extends JFrame{
 	public GUI(){								//constructor;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(400, 200, 450, 300);
-		event=new Event();
+		HighScore=0;
 		dialog=new JDialog(this,false);
-		message=new JLabel();
-		button=new JButton("exit");	
+		message=new JLabel("",JLabel.CENTER);
+		button=new JButton("I've known");	
 		lab=new JButton[5][4];
 		Container container=getContentPane();
 		container.setLayout(new GridLayout(5,4));
@@ -35,17 +38,40 @@ class GUI extends JFrame{
 		dia.add(button,BorderLayout.SOUTH);
 		running();
 	}
-	public void shows(){							//show the window;
+	public void add(GUI w){							//add listener;
+		lab[4][0].addKeyListener(w);
+	}
+	public void visibleDialog(){						//make the dialog visible;
+		dialog.setBounds(200, 200, 500, 500);
+		message.setFont(new Font("Default",Font.PLAIN,30));
+		dialog.setVisible(true);
+		button.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent act){
+				dialog.dispose();
+				}
+			});
+	}
+	public void keyTyped(KeyEvent k){
+		action(k.getKeyChar());
+		setWordSize(lab);
+	}
+	public void keyReleased(KeyEvent k){
 		
+	}
+	public void keyPressed(KeyEvent k){
+	
+	}
+	public void shows(){							//show the window;
+		event=new Event();
 		event.start();
 		setText(lab);
 	}
-	public void setButton(){
+	public void setButton(){						//set text for buttons;
 		for(int t1=0;t1<4;t1++){
-			if(t1==0) lab[4][t1].setText("Left");
-			else if(t1==1) lab[4][t1].setText("Up");
-			else if(t1==2) lab[4][t1].setText("Down");
-			else lab[4][t1].setText("Right");
+			if(t1==0) lab[4][t1].setText("Start/continue");
+			else if(t1==1) lab[4][t1].setText("Again");
+			else if(t1==2) lab[4][t1].setText("High Score");
+			else lab[4][t1].setText("Exit");
 		}
 	}
 	public void running(){						//run the game;
@@ -53,22 +79,24 @@ class GUI extends JFrame{
 		setVisible(true);
 		lab[4][1].addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent act){
-				action('w');
+				if(HighScore<event.findMax()) HighScore=event.findMax();
+				running();
 				}
 			});
 		lab[4][0].addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent act){
-				action('a');
 				}
 			});
 		lab[4][3].addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent act){
-				action('d');
+				System.exit(0);
 				}
 			});
 		lab[4][2].addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent act){
-				action('s');
+				message.setText("Max Score :"+Integer.toString(HighScore));
+				message.setBackground(Color.green);
+				visibleDialog();
 				}
 			});
 	}
@@ -85,23 +113,25 @@ class GUI extends JFrame{
 				else label[t1][t2].setBackground(Color.black);
 			}
 	}
+	public void setWordSize(JButton [][] label){					//auto set the word size;
+		for(int t1=0;t1<5;t1++)
+			for(int t2=0;t2<4;t2++){
+				label[t1][t2].setFont(new Font("Default",Font.PLAIN,label[t1][t2].getHeight()/2));
+				if(t1==4) label[t1][t2].setFont(new Font("Default",Font.PLAIN,label[t1][t2].getHeight()/4));
+			}
+	}
 	public void action(char act){							//deal with the action;
-		int x=0;
-		if(act=='w'||act=='W') x=0;
-		if(act=='a'||act=='A') x=2;
-		if(act=='s'||act=='S') x=1;
-		if(act=='d'||act=='D') x=3;
-		switch(x){
-		case 0:
+		switch(act){
+		case 'w':
 			if(event.check_Longitudinal()) event.up();
 			break;
-		case 1:
+		case 's':
 			if(event.check_Longitudinal()) event.down();
 			break;
-		case 2:
+		case 'a':
 			if(event.check_Lateral()) event.left();
 			break;
-		case 3:
+		case 'd':
 			if(event.check_Lateral()) event.right();
 			break;
 		default:
@@ -111,13 +141,9 @@ class GUI extends JFrame{
 		setText(lab);
 		setVisible(true);
 		if(check(message,lab)==true){
-			dialog.setSize(500,500);
-			dialog.setVisible(true);
-			button.addActionListener(new ActionListener(){
-				public void actionPerformed(ActionEvent act){
-					System.exit(0);
-					}
-				});
+			if(HighScore<event.findMax()) HighScore=event.findMax();
+			message.setBackground(Color.black);
+			visibleDialog();
 		}
 	}
 	public boolean check(JLabel message,JButton [][] label){			//game check;
@@ -138,6 +164,7 @@ class GUI extends JFrame{
 	private JButton [][] lab;
 	private JDialog dialog;
 	private JLabel message;
+	private int HighScore;
 }
 class init{							//the data of the game;
 	public init(){						//constructor;
